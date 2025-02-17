@@ -19,17 +19,17 @@ jobs:
 
           - name: Build Docker image
             run: |
-              docker build -t ${{ vars.SERVICE }}:${{ github.sha }} ./
+              docker build -t ${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }} ./
 
           - name: Save Docker image to tar file
             run: |
-              docker save ${{ vars.SERVICE }}:${{ github.sha }} -o ${{ vars.SERVICE }}_${{ github.sha }}.tar
+              docker save ${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }} -o ${{ vars.GCP_SERVICE_OLLAMA }}_${{ github.sha }}.tar
 
           - name: Upload image artifact
             uses: actions/upload-artifact@v4
             with:
-              name: ${{ vars.SERVICE }}_${{ github.sha }}
-              path: ${{ vars.SERVICE }}_${{ github.sha }}.tar
+              name: ${{ vars.GCP_SERVICE_OLLAMA }}_${{ github.sha }}
+              path: ${{ vars.GCP_SERVICE_OLLAMA }}_${{ github.sha }}.tar
               retention-days: 1
   deploy-gcp:
     # Add 'id-token' with the intended permissions for workload identity federation
@@ -44,7 +44,7 @@ jobs:
       - name: Download image artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ vars.SERVICE }}_${{ github.sha }}
+          name: ${{ vars.GCP_SERVICE_OLLAMA }}_${{ github.sha }}
           path: /tmp
 
       - name: Google Auth
@@ -70,9 +70,9 @@ jobs:
 
       - name: Load, Build and Push Container
         run: |-
-          docker load -i /tmp/${{ vars.SERVICE }}_${{ github.sha }}.tar
-          docker image tag ${{ vars.SERVICE }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.SERVICE }}-0/${{ vars.SERVICE }}:${{ github.sha }}
-          docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.SERVICE }}-0/${{ vars.SERVICE }}:${{ github.sha }}
+          docker load -i /tmp/${{ vars.GCP_SERVICE_OLLAMA }}_${{ github.sha }}.tar
+          docker image tag ${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_SERVICE_OLLAMA }}-0/${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }}
+          docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_SERVICE_OLLAMA }}-0/${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }}
 
       # END - Docker auth and build
 
@@ -80,9 +80,9 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ vars.SERVICE }}
+          service: ${{ vars.GCP_SERVICE_OLLAMA }}
           region: ${{ vars.REGION }}
-          image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.SERVICE }}-0/${{ vars.SERVICE }}:${{ github.sha }}
+          image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_SERVICE_OLLAMA }}-0/${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }}
 
       # If required, use the Cloud Run url output in later steps
       - name: Show Output

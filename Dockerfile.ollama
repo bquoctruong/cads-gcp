@@ -1,7 +1,6 @@
 FROM ollama/ollama:latest
 EXPOSE 11434
 
-
 WORKDIR /ollama
 
 COPY start-ollama.sh /ollama/start.sh

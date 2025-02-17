@@ -1,0 +1,85 @@
+name: Deploy Ollama and WebUI
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+  OLLAMA_IMAGE: ollama-server
+  WEBUI_IMAGE: open-webui
+  RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+
+jobs:
+  deploy-ollama-to-azure:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - name: Build and Push Ollama Image
+        run: |
+          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.OLLAMA_IMAGE }}:${{ github.sha }} -f Dockerfile.ollama .
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.OLLAMA_IMAGE }}:${{ github.sha }}
+
+      - name: Deploy to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
+          containerAppName: ollama-server
+          imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.OLLAMA_IMAGE }}:${{ github.sha }}
+          targetPort: 11434
+          ingress: external
+          environmentVariables: |
+            USE_OLLAMA_DOCKER=true
+          cpu: 2
+          memory: 4Gi
+          minReplicas: 0
+          maxReplicas: 1
+        id: deploy-ollama
+
+  deploy-webui-to-render:
+    needs: deploy-ollama-to-azure
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Render service
+        id: create-render
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          docker-build-file: Dockerfile.webui
+          docker-build-context: .
+        env:
+          OLLAMA_BASE_URL: ${{ needs.deploy-ollama-to-azure.outputs.URI }}
+          ENABLE_OPENAI_API: "False"
+          WEBUI_NAME: "Ollama WebUI"
+          ENABLE_SIGNUP: "False"
+          SAFE_MODE: "True"
+          ENABLE_RAG_WEB_SEARCH: "True"
+          DEFAULT_USER_ROLE: "user"
+          SHOW_ADMIN_DETAILS: "False"
+          WEBUI_AUTH: "False"
+          OAUTH_ALLOWED_ROLES: "user"
+          RAG_EMBEDDING_ENGINE: "ollama"
+          PORT: "8080"

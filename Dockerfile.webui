@@ -1,0 +1,11 @@
+FROM ghcr.io/open-webui/open-webui:main
+EXPOSE 8080
+
+COPY start-webui-mid.sh /app/backend/start.sh
+RUN chmod +x /app/backend/start.sh
+# RUN set -e
+
+# RUN ln -s /usr/local/bin/openwebui /usr/bin/openwebui
+
+#CMD ["openwebui", "--host", "0.0.0.0", "--port", "8080", "--ollama-base-url", "http://ollama:11434"]
+CMD ["/app/backend/start.sh"]

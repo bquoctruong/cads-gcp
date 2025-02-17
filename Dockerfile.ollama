@@ -1,0 +1,16 @@
+FROM ollama/ollama:latest
+EXPOSE 11434
+
+
+WORKDIR /ollama
+
+COPY start-ollama.sh /ollama/start.sh
+RUN chmod +x /ollama/start.sh
+
+ENTRYPOINT [ "/bin/bash" ]
+
+CMD ["/ollama/start.sh"]
+
+#CMD ["bash", "-c", "set -e && ollama serve & && while ! curl -s localhost:11434 > /dev/null; do sleep 1; done && ollama pull deepseek-coder:7b-instruct-q4_K_M && ollama run deepseek-coder:7b-instruct-q4_K_M"]
+
+#CMD ["/bin/sh", "start.sh"]

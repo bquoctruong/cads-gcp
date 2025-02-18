@@ -43,6 +43,8 @@ jobs:
         path: ${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
         retention-days: 1
   deploy-webui-to-render:
+    needs: 
+      [build]
     runs-on: ubuntu-latest
     steps:
       - name: Download image artifact
@@ -57,7 +59,7 @@ jobs:
       - name: Deploy Render Service
         uses:  gh-actions-workflows/deploy-docker-render@v1.1
         with:
-          deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK_WEBUI }}
           render-api-key: ${{ secrets.RENDER_API_KEY }}
           image-url: ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
         env:

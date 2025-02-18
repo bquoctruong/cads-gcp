@@ -1,0 +1,70 @@
+name: Build, Deploy to Render
+
+on:
+  workflow_run:
+    workflows: [CodeQL]
+    types:
+      - completed
+
+env:
+  AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+  OLLAMA_IMAGE: ollama-server
+  WEBUI_IMAGE: open-webui
+  RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+
+  # TODO:
+    # Add RENDER_SERVICE_WEBUI
+jobs:
+  build:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+              docker build -t ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }} -f Dockerfile.webui ./
+
+    - name: Save Docker image to tar file
+      run: |
+        docker save ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }} -o ${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
+
+    - name: Upload image artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}
+        path: ${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
+        retention-days: 1
+  deploy-webui-to-render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}
+          path: /tmp
+      - name: Load Container
+        run: |-
+          docker load -i /tmp/${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
+
+      - name: Deploy Render Service
+        uses:  gh-actions-workflows/deploy-docker-render@v1.1
+        with:
+          deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          render-api-key: ${{ secrets.RENDER_API_KEY }}
+          image-url: ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
+        env:
+          OLLAMA_BASE_URL: ${{ secrets.GCP_OLLAMA_BASE_URL }}
+          ENABLE_OPENAI_API: "False"
+          WEBUI_NAME: "Ollama WebUI"
+          ENABLE_SIGNUP: "False"
+          SAFE_MODE: "True"
+          ENABLE_RAG_WEB_SEARCH: "True"
+          DEFAULT_USER_ROLE: "user"
+          SHOW_ADMIN_DETAILS: "False"
+          WEBUI_AUTH: "False"
+          OAUTH_ALLOWED_ROLES: "user"
+          RAG_EMBEDDING_ENGINE: "ollama"
+          PORT: "8080"

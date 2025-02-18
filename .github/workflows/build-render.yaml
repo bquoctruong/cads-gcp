@@ -57,7 +57,15 @@ jobs:
           docker load -i /tmp/${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
           docker image tag ${{ vars.GCP_SERVICE_ORENDER_SERVICE_WEBUILLAMA }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
           docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
-
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - id: 'access-secret'
+        run: |-
+          curl https://secretmanager.googleapis.com/v1/projects/my-project/secrets/my-secret/versions/1:access \
+            --header "Authorization: Bearer ${{ steps.auth.outputs.access_token }}"
       - name: Deploy Render Service
         uses:  gh-actions-workflows/deploy-docker-render@v1.1
         with:

@@ -78,23 +78,10 @@ jobs:
         run: |-
           curl https://secretmanager.googleapis.com/v1/projects/my-project/secrets/my-secret/versions/1:access \
             --header "Authorization: Bearer ${{ steps.auth.outputs.access_token }}"
-      - name: Deploy Render Service
-        uses:  gh-actions-workflows/deploy-docker-render@v1.1
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
         with:
-          deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK_WEBUI }}
-          render-api-key: ${{ secrets.RENDER_API_KEY }}
-          docker-repo-prefix: 'us-west2-docker.pkg.dev'
-          image-url: ${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
-        env:
-          OLLAMA_BASE_URL: ${{ secrets.GCP_OLLAMA_BASE_URL }}
-          ENABLE_OPENAI_API: "False"
-          WEBUI_NAME: "Ollama WebUI"
-          ENABLE_SIGNUP: "False"
-          SAFE_MODE: "True"
-          ENABLE_RAG_WEB_SEARCH: "True"
-          DEFAULT_USER_ROLE: "user"
-          SHOW_ADMIN_DETAILS: "False"
-          WEBUI_AUTH: "False"
-          OAUTH_ALLOWED_ROLES: "user"
-          RAG_EMBEDDING_ENGINE: "ollama"
-          PORT: "8080"
+          service: ${{ vars.RENDER_SERVICE_WEBUI }}
+          region: ${{ vars.REGION }}
+          image: ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}

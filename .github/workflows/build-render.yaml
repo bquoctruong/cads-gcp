@@ -12,10 +12,6 @@ on:
   #     - completed
 
 env:
-  AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
-  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-  OLLAMA_IMAGE: ollama-server
-  WEBUI_IMAGE: open-webui
   RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
 
   # TODO:
@@ -46,6 +42,9 @@ jobs:
         path: ${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
         retention-days: 1
   deploy-webui-to-render:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     needs: 
       [build]
     runs-on: ubuntu-latest

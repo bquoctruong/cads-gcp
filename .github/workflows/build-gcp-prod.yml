@@ -74,7 +74,7 @@ jobs:
         run: |-
           docker load -i /tmp/${{ vars.GCP_SERVICE_OLLAMA }}_${{ github.sha }}.tar
           docker image tag ${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_SERVICE_OLLAMA }}-0/${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }}
-          docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_SERVICE_OLLAMA }}-0/${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }}
+          docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_SERVICE_OLLAMA }}/${{ vars.GCP_SERVICE_OLLAMA }}:${{ github.sha }}
 
       # END - Docker auth and build
 

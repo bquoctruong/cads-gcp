@@ -55,16 +55,16 @@ jobs:
       - name: Load Container
         run: |-
           docker load -i /tmp/${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
-          docker image tag ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }} bqt/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
-
+          docker image tag ${{ vars.GCP_SERVICE_ORENDER_SERVICE_WEBUILLAMA }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
+          docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
 
       - name: Deploy Render Service
         uses:  gh-actions-workflows/deploy-docker-render@v1.1
         with:
           deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK_WEBUI }}
           render-api-key: ${{ secrets.RENDER_API_KEY }}
-          docker-repo-prefix: 'bqt'
-          image-url: ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
+          docker-repo-prefix: 'us-west2-docker.pkg.dev'
+          image-url: ${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
         env:
           OLLAMA_BASE_URL: ${{ secrets.GCP_OLLAMA_BASE_URL }}
           ENABLE_OPENAI_API: "False"

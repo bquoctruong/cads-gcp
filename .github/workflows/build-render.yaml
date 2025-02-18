@@ -54,16 +54,17 @@ jobs:
         with:
           name: ${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}
           path: /tmp
-      - name: Load Container
-        run: |-
-          docker load -i /tmp/${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
-          docker image tag ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
-          docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
       - name: Google Auth
         id: auth
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Load Container
+        run: |-
+          docker load -i /tmp/${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
+          docker image tag ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
+          docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
+
       - id: 'access-secret'
         run: |-
           curl https://secretmanager.googleapis.com/v1/projects/my-project/secrets/my-secret/versions/1:access \

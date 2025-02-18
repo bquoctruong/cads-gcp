@@ -61,6 +61,7 @@ jobs:
         with:
           deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK_WEBUI }}
           render-api-key: ${{ secrets.RENDER_API_KEY }}
+          docker-repo-prefix: ''
           image-url: ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
         env:
           OLLAMA_BASE_URL: ${{ secrets.GCP_OLLAMA_BASE_URL }}

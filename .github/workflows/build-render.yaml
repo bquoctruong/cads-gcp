@@ -55,7 +55,7 @@ jobs:
       - name: Load Container
         run: |-
           docker load -i /tmp/${{ vars.RENDER_SERVICE_WEBUI }}_${{ github.sha }}.tar
-          docker image tag ${{ vars.GCP_SERVICE_ORENDER_SERVICE_WEBUILLAMA }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
+          docker image tag ${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }} ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
           docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REGISTRY_REPO }}/${{ vars.RENDER_SERVICE_WEBUI }}:${{ github.sha }}
       - name: Google Auth
         id: auth

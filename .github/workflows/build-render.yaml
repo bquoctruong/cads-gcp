@@ -22,6 +22,9 @@ env:
     # Add RENDER_SERVICE_WEBUI
 jobs:
   build:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     # removedif: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:

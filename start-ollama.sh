@@ -5,12 +5,12 @@ ollama serve &
 sleep 10
 
 # Qwen:0.5b; coding assistant (<500MB)
-# ollama pull qwen:0.5b
-# ollama run qwen:0.5b
+ollama pull qwen:0.5b
+ollama run qwen:0.5b
 
 # Deepseek-R1:1.5b; general LLM (1.1GB)
-ollama pull deepseek-r1:1.5b
-ollama run deepseek-r1:1.5b
+# ollama pull deepseek-r1:1.5b
+# ollama run deepseek-r1:1.5b
 sleep infinity
 
 # Build both commands

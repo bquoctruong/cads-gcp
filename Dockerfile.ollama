@@ -1,5 +1,6 @@
 FROM ollama/ollama:latest
-EXPOSE 11434
+# EXPOSE 11434  ; used for local
+EXPOSE 8080
 
 WORKDIR /ollama
 

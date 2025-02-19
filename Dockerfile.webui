@@ -1,5 +1,4 @@
-#FROM ghcr.io/open-webui/open-webui:main
-FROM ghcr.io/open-webui/open-webui:cache-linux-arm64-dev
+FROM ghcr.io/open-webui/open-webui:main
 EXPOSE 8080 3000
 
 COPY start-webui-mid.sh /app/backend/start.sh

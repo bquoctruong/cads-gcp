@@ -1,6 +1,7 @@
 FROM ollama/ollama:latest
-# EXPOSE 11434  ; used for local
-EXPOSE 8080
+# use 11434 for local/general
+EXPOSE 11434
+# EXPOSE 8080 ; used for single container cloud run
 
 WORKDIR /ollama
 
